@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://food-empire.net/</loc>
+    <priority>1.00</priority>
+    <lastmod>2025-08-01</lastmod>
+  </url>
+  <url>
+    <loc>https://food-empire.net/about</loc>
+    <priority>0.80</priority>
+    <lastmod>2025-08-01</lastmod>
+  </url>
+  <url>
+    <loc>https://food-empire.net/products</loc>
+    <priority>0.90</priority>
+    <lastmod>2025-08-01</lastmod>
+  </url>
+  <url>
+    <loc>https://food-empire.net/careers</loc>
+    <priority>0.70</priority>
+    <lastmod>2025-08-01</lastmod>
+  </url>
+  <url>
+    <loc>https://food-empire.net/contact</loc>
+    <priority>0.60</priority>
+    <lastmod>2025-08-01</lastmod>
+  </url>
+</urlset>
