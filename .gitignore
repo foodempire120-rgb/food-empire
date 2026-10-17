@@ -27,3 +27,7 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Debug / scratch scripts (may contain secrets)
+scripts/test_*.mjs
+scripts/debug_*.mjs
