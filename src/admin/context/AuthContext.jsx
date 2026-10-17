@@ -28,24 +28,41 @@ export const AuthProvider = ({ children }) => {
       return false;
     }
 
+    const isDev = import.meta.env.DEV;
+
     try {
       const email = currentUser.email?.toLowerCase();
       const userId = currentUser.id;
 
-      // Query admin_users matching user_id or email
-      const { data, error: queryError } = await supabase
+      if (isDev) {
+        console.group('[AdminAuth] verifyAdminStatus');
+        console.log('User ID:', userId);
+        console.log('Email:', email);
+      }
+
+      // Use select + limit instead of maybeSingle() to safely handle cases
+      // where multiple admin_users rows share the same user_id or email
+      // (maybeSingle throws PGRST116 if 2+ rows match, causing false "unauthorized")
+      const { data: rows, error: queryError } = await supabase
         .from('admin_users')
         .select('id, user_id, email, active')
         .or(`user_id.eq.${userId},email.ilike.${email}`)
         .eq('active', true)
-        .maybeSingle();
+        .limit(1);
+
+      if (isDev) {
+        console.log('admin_users query result:', { rows, queryError });
+        console.groupEnd();
+      }
 
       if (queryError) {
-        console.error('Error verifying admin authorization:', queryError);
+        if (isDev) console.error('[AdminAuth] admin_users query failed:', queryError);
         setIsAdmin(false);
         setAdminUser(null);
         return false;
       }
+
+      const data = rows && rows.length > 0 ? rows[0] : null;
 
       if (data && data.active) {
         // Link user_id if it was pre-seeded with email only
@@ -60,17 +77,19 @@ export const AuthProvider = ({ children }) => {
         setIsAdmin(true);
         return true;
       } else {
+        if (isDev) console.warn('[AdminAuth] No active admin record found for this user.');
         setAdminUser(null);
         setIsAdmin(false);
         return false;
       }
     } catch (err) {
-      console.error('Unexpected error checking admin status:', err);
+      if (import.meta.env.DEV) console.error('[AdminAuth] Unexpected error in verifyAdminStatus:', err);
       setIsAdmin(false);
       setAdminUser(null);
       return false;
     }
   };
+
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
