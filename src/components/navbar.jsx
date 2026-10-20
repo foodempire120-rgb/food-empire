@@ -51,9 +51,7 @@ const Navbar = () => {
                 className={`font-medium transition-all duration-500 relative group hover:scale-105 ${
                   isActive(item.path)
                     ? 'text-green-600'
-                    : (location.pathname !== '/' || scrollY > 50)
-                      ? 'text-gray-800 hover:text-green-600'
-                      : 'text-white hover:text-green-300'
+                    : 'text-gray-900 hover:text-green-600'
                 }`}
               >
                 {item.name}

@@ -9,6 +9,7 @@ import CareersPage from './pages/CareersPage';
 import ContactPage from './pages/ContactPage';
 import GlobalToVietnamMap from './components/GlobalToVietnamMap';
 import ScrollToTop from './components/ScrollToTop';
+import DownloadCatalogueButton from './components/DownloadCatalogueButton';
 
 // Admin CMS imports
 import { AuthProvider } from './admin/context/AuthContext';
@@ -32,6 +33,7 @@ function PublicLayout() {
       <Navbar />
       <ScrollToTop />
       <Outlet />
+      <DownloadCatalogueButton />
       <Footer />
     </div>
   );

@@ -151,15 +151,28 @@ useEffect(() => {
     <div className="relative">
       {/* Hero Section */}
      <section className="relative flex items-center justify-start min-h-screen bg-white overflow-hidden">
-  {/* Background image */}
-  <img
-    src="/Images/hero-bg.png"
-    alt="Hero Background"
-    className="absolute inset-0 z-0 w-full h-full object-cover object-right"
-  />
+  {/* Background image - responsive for mobile & desktop */}
+  <picture className="absolute inset-0 z-0 w-full h-full block">
+    <source
+      media="(max-width: 767px)"
+      srcSet="https://res.cloudinary.com/qvtcu4ve/image/upload/Raw_Steaks_with_Rosemary_and_Garlic"
+    />
+    <source
+      media="(min-width: 768px)"
+      srcSet="https://res.cloudinary.com/qvtcu4ve/image/upload/hero"
+    />
+    <img
+      src="https://res.cloudinary.com/qvtcu4ve/image/upload/hero"
+      alt="Hero Background"
+      className="w-full h-full object-cover object-center md:object-right"
+      onError={(e) => {
+        e.currentTarget.src = "/Images/hero-bg.png";
+      }}
+    />
+  </picture>
 
-  {/* Optional: gradient on mobile for readability */}
-  <div className="absolute inset-0 bg-gradient-to-l from-white via-white/70 to-transparent md:bg-none z-10"></div>
+  {/* Gradient overlay for readability: soft wash across mobile & left-side on desktop */}
+  <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/70 to-white/40 md:bg-gradient-to-r md:from-white/95 md:via-white/70 md:to-transparent z-10 pointer-events-none md:max-w-3xl"></div>
 
   {/* Content */}
   <div className="relative z-20 max-w-7xl mx-auto w-full px-6 lg:px-8 flex flex-col justify-center min-h-screen">
@@ -168,7 +181,7 @@ useEffect(() => {
         <span className="text-green-600">Delivering Finest</span><br />
         Beef, Lamb, Fries & Other Products
       </h1>
-      <p className="text-lg md:text-xl text-gray-700 mb-8">
+      <p className="text-lg md:text-xl text-gray-900 font-medium mb-8 leading-relaxed drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
         Trusted by hundreds of businesses, Food Empire delivers top-quality meat and frozen products across Vietnam. Perfectly packed, reliably delivered.
       </p>
       <Link
