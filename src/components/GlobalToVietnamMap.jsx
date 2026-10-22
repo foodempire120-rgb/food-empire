@@ -3,16 +3,28 @@ import * as d3 from "d3";
 import { feature } from "topojson-client";
 
 const cities = [
-  { name: "Australia", coords: [151.2093, -33.8688] },   // Sydney
-  { name: "USA", coords: [-95.0, 37.0] },          // New York
-  { name: "India", coords: [72.8777, 19.0760] },         // Mumbai
-  { name: "Canada", coords: [-100.0, 56.0] },       // Toronto
-  { name: "New Zealand", coords: [174.7633, -36.8485] }, // Auckland
-  { name: "China", coords: [121.4737, 31.2304] },        // Shanghai
-  { name: "Spain", coords: [-3.7492, 40.4637] },        // Madrid
-  { name: "Singapore", coords: [103.8198, 1.3521] },    // Singapore
+  { name: "Australia", coords: [133.7751, -25.2744], labelOffset: [4, 4] },
+  { name: "USA", coords: [-95.7129, 37.0902], labelOffset: [4, 4] },
+  { name: "Japan", coords: [138.2529, 36.2048], labelOffset: [4, 4] },
+  { name: "Italy", coords: [12.5674, 41.8719], labelOffset: [4, -4] },
+  { name: "Canada", coords: [-106.3468, 56.1304], labelOffset: [4, 4] },
+  { name: "Spain", coords: [-3.7492, 40.4637], labelOffset: [-32, 10] },
+  { name: "Brazil", coords: [-51.9253, -14.235], labelOffset: [4, 4] },
+  { name: "Chile", coords: [-71.543, -35.6751], labelOffset: [-28, 4] },
+  { name: "India", coords: [78.9629, 20.5937], labelOffset: [-30, 4] },
+  { name: "New Zealand", coords: [174.886, -40.9006], labelOffset: [4, 4] },
+  { name: "China", coords: [104.1954, 35.8617], labelOffset: [4, -4] },
+  { name: "France", coords: [2.2137, 46.2276], labelOffset: [-36, -4] },
+  { name: "Poland", coords: [19.1451, 51.9194], labelOffset: [4, -4] },
+  { name: "Germany", coords: [10.4515, 51.1657], labelOffset: [-45, -6] },
+  { name: "Netherlands", coords: [5.2913, 52.1326], labelOffset: [-65, -12] },
+  { name: "Ireland", coords: [-8.2439, 53.4129], labelOffset: [-38, -4] },
+  { name: "UK", coords: [-3.436, 55.3781], labelOffset: [-20, -10] },
+  { name: "Norway", coords: [8.4689, 60.472], labelOffset: [4, -4] },
+  { name: "Thailand", coords: [100.9925, 15.87], labelOffset: [-45, 12] },
+  { name: "Singapore", coords: [103.8198, 1.3521], labelOffset: [-50, 10] },
+  { name: "Argentina", coords: [-63.6167, -38.4161], labelOffset: [4, 4] },
 ];
-
 
 const vietnamCoords = [108.2772, 14.0583];
 
@@ -42,7 +54,6 @@ const GlobalToVietnamMap = () => {
     const projection = d3.geoMercator()
       .scale(120) // smaller = more zoomed out
       .translate([width / 2, height / 1.4]); // tweak to center Asia/Australia
-
 
     const pathGen = d3.geoPath().projection(projection);
 
@@ -86,16 +97,24 @@ const GlobalToVietnamMap = () => {
       .style("font-size", "14px")
       .style("font-weight", "600");
 
-    // optional labels for cities
+    // labels for source countries
     cities.forEach(city => {
       const pos = projection(city.coords);
+      const [offsetX, offsetY] = city.labelOffset || [4, 4];
+      svg.append("circle")
+        .attr("cx", pos[0])
+        .attr("cy", pos[1])
+        .attr("r", 2.5)
+        .attr("fill", "#d90429")
+        .attr("opacity", 0.75);
+
       svg.append("text")
-        .attr("x", pos[0] + 4)
-        .attr("y", pos[1] + 4)
+        .attr("x", pos[0] + offsetX)
+        .attr("y", pos[1] + offsetY)
         .text(city.name)
         .attr("fill", "#555")
         .style("font-size", "10px")
-        .style("opacity", 0.7);
+        .style("opacity", 0.75);
     });
 
   }, [geographies]);
@@ -107,8 +126,8 @@ const GlobalToVietnamMap = () => {
           Global to Vietnam Network
         </h2>
         <svg ref={ref}></svg>
-        <p className="text-center text-gray-600 mt-6 text-lg max-w-3xl mx-auto">
-          Our global sourcing network brings the finest food products from Australia, USA, India, Canada, New Zealand, China, Spain, and Singapore — all the way to Vietnam.
+        <p className="text-center text-gray-600 mt-6 text-lg max-w-4xl mx-auto">
+          Our global sourcing network spans 22+ countries across the Americas, Europe, Asia, and Oceania — delivering world-class beef, lamb, poultry, seafood, potatoes, and pantry essentials directly to Vietnam from Australia, USA, Japan, Italy, Canada, Spain, Brazil, Chile, India, New Zealand, China, France, Poland, Germany, Netherlands, Ireland, UK, Norway, Thailand, Singapore, and Argentina.
         </p>
       </div>
     </section>

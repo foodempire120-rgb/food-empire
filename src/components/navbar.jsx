@@ -106,13 +106,16 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            <Link
-              to="/contact"
+            <a
+              href="/Food Empire - Product Catalogue (A3) - Sep 2026.pdf"
+              download="Food Empire - Product Catalogue.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
               className="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-semibold text-center hover:scale-105 hover:shadow-xl transition-all duration-300 animate-bounce-in"
               onClick={() => setIsMenuOpen(false)}
             >
-              Order Now
-            </Link>
+              Download Catalog
+            </a>
           </div>
         </div>
       )}

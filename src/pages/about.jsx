@@ -189,8 +189,8 @@ const AboutPage = () => {
             <div className="flex-1">
               <div className="relative h-full">
                 <img
-                  src="/Images/premium.jpg"
-                  alt="Food Empire facility"
+                  src="https://res.cloudinary.com/qvtcu4ve/image/upload/Rustic_Ribeye_Feast_with_Rosemary_and_Chips"
+                  alt="Rustic Ribeye Feast with Rosemary and Chips"
                   className="w-full h-full object-cover rounded-3xl shadow-2xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/20 to-transparent rounded-3xl"></div>

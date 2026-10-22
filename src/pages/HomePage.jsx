@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Truck, Shield, Clock, Phone, Mail, MapPin, CheckCircle, Users, Award, Globe, ArrowRight, Play, TrendingUp, Zap, Target, ChevronRight, Quote, Leaf, Award as AwardIcon, Sparkles, Eye, Heart, ThumbsUp } from 'lucide-react';
+import { Star, Truck, Shield, Clock, Phone, Mail, MapPin, CheckCircle, Users, Award, Globe, ArrowRight, Play, TrendingUp, Zap, Target, ChevronRight, Quote, Leaf, Award as AwardIcon, Sparkles, Eye, Heart, ThumbsUp, Download } from 'lucide-react';
 import GlobalToVietnamMap from '../components/GlobalToVietnamMap';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -184,13 +184,16 @@ useEffect(() => {
       <p className="text-lg md:text-xl text-gray-900 font-medium mb-8 leading-relaxed drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
         Trusted by hundreds of businesses, Food Empire delivers top-quality meat and frozen products across Vietnam. Perfectly packed, reliably delivered.
       </p>
-      <Link
-        to="/contact"
-        className="group bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg transition"
+      <a
+        href="/Food Empire - Product Catalogue (A3) - Sep 2026.pdf"
+        download="Food Empire - Product Catalogue.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group inline-flex items-center bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg transition"
       >
-        Order Now
-        <ArrowRight className="inline w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-      </Link>
+        <span>Download Catalog</span>
+        <Download className="w-5 h-5 ml-2 group-hover:translate-y-0.5 transition-transform" />
+      </a>
     </div>
   </div>
 </section>
