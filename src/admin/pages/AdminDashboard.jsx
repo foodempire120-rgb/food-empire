@@ -16,12 +16,19 @@ import {
 
 const CATEGORY_LABELS = {
   all: 'All Categories',
-  beef: 'Beef',
-  fries: 'French Fries',
-  lamb: 'Lamb',
-  cheese: 'Cheese',
-  butter_margarine: 'Butter & Margarine',
-  others: 'Others'
+  'Frozen Beef': 'Frozen Beef',
+  'Frozen Lamb': 'Frozen Lamb',
+  'Imported Poultry': 'Imported Poultry',
+  'Frozen Seafood': 'Frozen Seafood',
+  'Frozen Potato': 'Frozen Potato',
+  'Butter, Cheese & Dairy': 'Butter, Cheese & Dairy',
+  'Oils, Sauces & Dry Goods': 'Oils, Sauces & Dry Goods',
+  beef: 'Beef (Legacy)',
+  fries: 'French Fries (Legacy)',
+  lamb: 'Lamb (Legacy)',
+  cheese: 'Cheese (Legacy)',
+  butter_margarine: 'Butter & Margarine (Legacy)',
+  others: 'Others (Legacy)'
 };
 
 const ITEMS_PER_PAGE = 15;
@@ -83,7 +90,8 @@ const AdminDashboard = () => {
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (item.country && item.country.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.badge && item.badge.toLowerCase().includes(searchTerm.toLowerCase()));
+        (item.badge && item.badge.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (Array.isArray(item.features) && item.features.some((f) => f.toLowerCase().includes(searchTerm.toLowerCase())));
 
       const matchesCategory =
         categoryFilter === 'all' || item.category === categoryFilter;
@@ -385,9 +393,16 @@ const AdminDashboard = () => {
                           )}
                         </div>
                         <div className="max-w-xs">
-                          <p className="text-sm font-bold text-gray-900 group-hover:text-emerald-700 transition-colors leading-tight">
-                            {product.name}
-                          </p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {Array.isArray(product.features) && product.features.find((f) => f.startsWith('FE-')) && (
+                              <span className="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded shrink-0">
+                                {product.features.find((f) => f.startsWith('FE-'))}
+                              </span>
+                            )}
+                            <p className="text-sm font-bold text-gray-900 group-hover:text-emerald-700 transition-colors leading-tight">
+                              {product.name}
+                            </p>
+                          </div>
                           {product.badge && (
                             <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600">
                               {product.badge}
@@ -500,9 +515,16 @@ const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-gray-900 truncate">
-                      {product.name}
-                    </h4>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {Array.isArray(product.features) && product.features.find((f) => f.startsWith('FE-')) && (
+                        <span className="font-mono text-[9px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1 py-0.2 rounded shrink-0">
+                          {product.features.find((f) => f.startsWith('FE-'))}
+                        </span>
+                      )}
+                      <h4 className="text-sm font-bold text-gray-900 truncate">
+                        {product.name}
+                      </h4>
+                    </div>
                     <p className="text-xs text-gray-500 mt-0.5">
                       {CATEGORY_LABELS[product.category] || product.category}
                       {product.country ? ` • ${product.country}` : ''}

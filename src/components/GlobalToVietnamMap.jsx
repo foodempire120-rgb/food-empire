@@ -16,9 +16,9 @@ const cities = [
   { name: "China", coords: [104.1954, 35.8617], labelOffset: [4, -4] },
   { name: "France", coords: [2.2137, 46.2276], labelOffset: [-36, -4] },
   { name: "Poland", coords: [19.1451, 51.9194], labelOffset: [4, -4] },
-  { name: "Germany", coords: [10.4515, 51.1657], labelOffset: [-45, -6] },
-  { name: "Netherlands", coords: [5.2913, 52.1326], labelOffset: [-65, -12] },
-  { name: "Ireland", coords: [-8.2439, 53.4129], labelOffset: [-38, -4] },
+  { name: "Germany", coords: [10.4515, 51.1657], labelOffset: [-80, -6] },
+  { name: "Netherlands", coords: [5.2913, 52.1326], hideLabel: true },
+  { name: "Ireland", coords: [-8.2439, 53.4129], hideLabel: true },
   { name: "UK", coords: [-3.436, 55.3781], labelOffset: [-20, -10] },
   { name: "Norway", coords: [8.4689, 60.472], labelOffset: [4, -4] },
   { name: "Thailand", coords: [100.9925, 15.87], labelOffset: [-45, 12] },
@@ -108,13 +108,15 @@ const GlobalToVietnamMap = () => {
         .attr("fill", "#d90429")
         .attr("opacity", 0.75);
 
-      svg.append("text")
-        .attr("x", pos[0] + offsetX)
-        .attr("y", pos[1] + offsetY)
-        .text(city.name)
-        .attr("fill", "#555")
-        .style("font-size", "10px")
-        .style("opacity", 0.75);
+      if (!city.hideLabel) {
+        svg.append("text")
+          .attr("x", pos[0] + offsetX)
+          .attr("y", pos[1] + offsetY)
+          .text(city.name)
+          .attr("fill", "#555")
+          .style("font-size", "10px")
+          .style("opacity", 0.75);
+      }
     });
 
   }, [geographies]);
@@ -127,7 +129,7 @@ const GlobalToVietnamMap = () => {
         </h2>
         <svg ref={ref}></svg>
         <p className="text-center text-gray-600 mt-6 text-lg max-w-4xl mx-auto">
-          Our global sourcing network spans 22+ countries across the Americas, Europe, Asia, and Oceania — delivering world-class beef, lamb, poultry, seafood, potatoes, and pantry essentials directly to Vietnam from Australia, USA, Japan, Italy, Canada, Spain, Brazil, Chile, India, New Zealand, China, France, Poland, Germany, Netherlands, Ireland, UK, Norway, Thailand, Singapore, and Argentina.
+          Our global sourcing network spans 20+ countries across the Americas, Europe, Asia, and Oceania — delivering world-class beef, lamb, poultry, seafood, potatoes, and pantry essentials directly to Vietnam from Australia, USA, Japan, Italy, Canada, Spain, Brazil, Chile, India, New Zealand, China, France, Poland, Germany, UK, Norway, Thailand, Singapore, and Argentina.
         </p>
       </div>
     </section>

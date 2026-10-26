@@ -309,10 +309,10 @@ useEffect(() => {
 
             <div className="relative h-64 overflow-hidden">
               <img 
-  src="/Images/beef.jpg" // <-- your professional beef image path
-  alt="Premium Beef"
-  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-/>
+                src="/Images/Rustic_Marbled_Beef_Feast.png"
+                alt="Rustic Marbled Beef Feast"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              />
 
               <div className="absolute inset-0 bg-gradient-to-t from-red-900/50 to-transparent"></div>
               <div className="absolute bottom-4 left-4">
@@ -349,8 +349,8 @@ useEffect(() => {
 
             <div className="relative h-64 overflow-hidden">
               <img 
-                src="/Images/lamb.jpg"
-                alt="Fresh Lamb"
+                src="/Images/Rustic_Lamb_Rack_and_Chops_Feast.png"
+                alt="Rustic Lamb Rack and Chops Feast"
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-purple-900/50 to-transparent"></div>
@@ -388,8 +388,8 @@ useEffect(() => {
 
             <div className="relative h-64 overflow-hidden">
               <img 
-                src="https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop"
-                alt="French Fries"
+                src="/Images/Gourmet_Fries_with_Sauces_and_Herbs.png"
+                alt="Gourmet Fries with Sauces and Herbs"
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-orange-900/50 to-transparent"></div>

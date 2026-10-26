@@ -4,6 +4,7 @@ import AdminLayout from '../components/AdminLayout';
 import ProductImageUploader from '../components/ProductImageUploader';
 import {
   getProductById,
+  getAdminProducts,
   createProduct,
   updateProduct,
   uploadProductImage,
@@ -11,16 +12,23 @@ import {
   deleteMultipleProductImages
 } from '../services/productService';
 import {
-  ArrowLeft, Save, Loader2, AlertCircle, CheckCircle2, Copy
+  ArrowLeft, Save, Loader2, AlertCircle, CheckCircle2, Copy, Plus, List
 } from 'lucide-react';
 
 const CATEGORY_OPTIONS = [
-  { value: 'beef', label: 'Beef' },
-  { value: 'fries', label: 'French Fries' },
-  { value: 'lamb', label: 'Lamb' },
-  { value: 'cheese', label: 'Cheese' },
-  { value: 'butter_margarine', label: 'Butter & Margarine' },
-  { value: 'others', label: 'Others' }
+  { value: 'Frozen Beef', label: 'Frozen Beef' },
+  { value: 'Frozen Lamb', label: 'Frozen Lamb' },
+  { value: 'Imported Poultry', label: 'Imported Poultry' },
+  { value: 'Frozen Seafood', label: 'Frozen Seafood' },
+  { value: 'Frozen Potato', label: 'Frozen Potato' },
+  { value: 'Butter, Cheese & Dairy', label: 'Butter, Cheese & Dairy' },
+  { value: 'Oils, Sauces & Dry Goods', label: 'Oils, Sauces & Dry Goods' },
+  { value: 'beef', label: 'Beef (Legacy)' },
+  { value: 'fries', label: 'French Fries (Legacy)' },
+  { value: 'lamb', label: 'Lamb (Legacy)' },
+  { value: 'cheese', label: 'Cheese (Legacy)' },
+  { value: 'butter_margarine', label: 'Butter & Margarine (Legacy)' },
+  { value: 'others', label: 'Others (Legacy)' }
 ];
 
 const AdminProductForm = () => {
@@ -34,17 +42,22 @@ const AdminProductForm = () => {
   // Form State
   const [formData, setFormData] = useState({
     name: '',
-    category: 'beef',
+    category: 'Frozen Beef',
     country: '',
     description: '',
     badge: 'Premium',
     rating: '4.8',
     suppliers: '3',
+    features: [],
     is_published: true
   });
 
   // Images State (handles multiple gallery photos & primary selection)
   const [images, setImages] = useState([]);
+
+  // Category State (supports dynamic database categories and custom addition)
+  const [categoryOptions, setCategoryOptions] = useState(CATEGORY_OPTIONS);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
 
   // UI state
   const [loading, setLoading] = useState(isEditing && !isDuplicating);
@@ -52,6 +65,32 @@ const AdminProductForm = () => {
   const [saveStepText, setSaveStepText] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Prefetch existing categories from database products so all custom categories appear
+  useEffect(() => {
+    const fetchExistingCategories = async () => {
+      try {
+        const { data } = await getAdminProducts();
+        if (data && Array.isArray(data)) {
+          const uniqueCats = new Set(data.map((p) => p.category?.trim()).filter(Boolean));
+          setCategoryOptions((prev) => {
+            const existingValues = new Set(prev.map((opt) => opt.value.toLowerCase()));
+            const newOpts = [];
+            uniqueCats.forEach((cat) => {
+              if (!existingValues.has(cat.toLowerCase())) {
+                newOpts.push({ value: cat, label: cat });
+              }
+            });
+            return newOpts.length > 0 ? [...prev, ...newOpts] : prev;
+          });
+        }
+      } catch (err) {
+        console.warn('Could not prefetch categories:', err);
+      }
+    };
+
+    fetchExistingCategories();
+  }, []);
 
   // Pre-fill if duplicating
   useEffect(() => {
@@ -87,14 +126,23 @@ const AdminProductForm = () => {
 
         setFormData({
           name: data.name || '',
-          category: data.category || 'beef',
+          category: data.category || 'Frozen Beef',
           country: data.country || '',
           description: data.description || '',
           badge: data.badge || '',
           rating: data.rating?.toString() || '4.8',
           suppliers: data.suppliers?.toString() || '1',
+          features: Array.isArray(data.features) ? data.features : [],
           is_published: data.is_published ?? true
         });
+
+        if (data.category) {
+          const cat = data.category.trim();
+          setCategoryOptions((prev) => {
+            const exists = prev.some((opt) => opt.value.toLowerCase() === cat.toLowerCase());
+            return exists ? prev : [...prev, { value: cat, label: cat }];
+          });
+        }
 
         // Initialize images from gallery or primary
         if (Array.isArray(data.gallery_images) && data.gallery_images.length > 0) {
@@ -227,9 +275,11 @@ const AdminProductForm = () => {
         is_published: formData.is_published,
         image: primaryImage ? primaryImage.public_url : '',
         image_path: primaryImage ? primaryImage.storage_path : null,
-        features: formData.country.trim()
-          ? [`${formData.country.trim()} origin`]
-          : []
+        features: Array.isArray(formData.features) && formData.features.length > 0
+          ? formData.features
+          : formData.country.trim()
+            ? [`${formData.country.trim()} origin`]
+            : []
       };
 
       if (!isEditing && targetProductId) {
@@ -355,22 +405,76 @@ const AdminProductForm = () => {
               {/* Category & Origin Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    Category <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="category"
-                    required
-                    value={formData.category}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                  >
-                    {CATEGORY_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-semibold text-gray-800">
+                      Category <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !isCustomCategory;
+                        setIsCustomCategory(next);
+                        if (!next && !categoryOptions.some(opt => opt.value === formData.category)) {
+                          setFormData(prev => ({ ...prev, category: categoryOptions[0]?.value || 'Frozen Beef' }));
+                        }
+                      }}
+                      className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
+                    >
+                      {isCustomCategory ? (
+                        <>
+                          <List className="w-3.5 h-3.5" />
+                          <span>Select existing</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Add new category</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {!isCustomCategory ? (
+                    <select
+                      name="category"
+                      required
+                      value={formData.category}
+                      onChange={(e) => {
+                        if (e.target.value === '__add_new__') {
+                          setIsCustomCategory(true);
+                          setFormData((prev) => ({ ...prev, category: '' }));
+                        } else {
+                          handleChange(e);
+                        }
+                      }}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                    >
+                      {categoryOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                      <option value="__add_new__" className="text-emerald-600 font-bold">
+                        + Add New Category...
                       </option>
-                    ))}
-                  </select>
+                    </select>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <input
+                        type="text"
+                        name="category"
+                        required
+                        placeholder="Enter new category name (e.g. Frozen Bakery, Beverages)"
+                        value={formData.category}
+                        onChange={handleChange}
+                        autoFocus
+                        className="w-full px-4 py-3 bg-emerald-50/50 border-2 border-emerald-500 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium placeholder:text-gray-400"
+                      />
+                      <p className="text-[11px] text-gray-500">
+                        This category will automatically appear in catalog filter tabs and CMS listings.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -406,8 +510,8 @@ const AdminProductForm = () => {
                 />
               </div>
 
-              {/* Badge, Rating, Suppliers */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
+              {/* Badge & Rating */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-2">
                     Brand / Supplier Badge
@@ -433,21 +537,6 @@ const AdminProductForm = () => {
                     max="5.0"
                     name="rating"
                     value={formData.rating}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    Suppliers Count
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="20"
-                    name="suppliers"
-                    value={formData.suppliers}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                   />

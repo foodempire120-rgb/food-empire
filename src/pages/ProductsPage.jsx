@@ -7,14 +7,14 @@ import {
   Globe,
   ArrowRight,
   CheckCircle,
-  Shield,
   Award,
   X,
   ChevronDown,
   Eye,
   Info,
   RotateCcw,
-  Check
+  Check,
+  ImageIcon
 } from 'lucide-react';
 import { getPublicProducts } from '../admin/services/productService';
 
@@ -315,13 +315,34 @@ const INITIAL_PRODUCTS = [
 
 const BASE_CATEGORIES = [
   { id: 'all', name: 'All Products' },
-  { id: 'beef', name: 'Beef' },
-  { id: 'fries', name: 'French Fries' },
-  { id: 'lamb', name: 'Lamb' },
-  { id: 'cheese', name: 'Cheese' },
-  { id: 'butter_margarine', name: 'Butter & Margarine' },
-  { id: 'others', name: 'Specialty & Oils' }
+  { id: 'Frozen Beef', name: 'Frozen Beef' },
+  { id: 'Frozen Lamb', name: 'Frozen Lamb' },
+  { id: 'Imported Poultry', name: 'Imported Poultry' },
+  { id: 'Frozen Seafood', name: 'Frozen Seafood' },
+  { id: 'Frozen Potato', name: 'Frozen Potato' },
+  { id: 'Butter, Cheese & Dairy', name: 'Butter, Cheese & Dairy' },
+  { id: 'Oils, Sauces & Dry Goods', name: 'Oils, Sauces & Dry Goods' }
 ];
+
+// Helper to match canonical database categories with legacy aliases
+const matchesCategoryHelper = (prodCat, filterId) => {
+  if (filterId === 'all') return true;
+  if (!prodCat) return false;
+  if (prodCat === filterId) return true;
+
+  const map = {
+    'Frozen Beef': ['Frozen Beef', 'beef'],
+    'Frozen Lamb': ['Frozen Lamb', 'lamb'],
+    'Imported Poultry': ['Imported Poultry', 'poultry', 'chicken'],
+    'Frozen Seafood': ['Frozen Seafood', 'seafood'],
+    'Frozen Potato': ['Frozen Potato', 'fries', 'potato'],
+    'Butter, Cheese & Dairy': ['Butter, Cheese & Dairy', 'cheese', 'butter_margarine', 'dairy'],
+    'Oils, Sauces & Dry Goods': ['Oils, Sauces & Dry Goods', 'others', 'sauces', 'oils']
+  };
+
+  const allowed = map[filterId] || [filterId];
+  return allowed.some((a) => a.toLowerCase() === prodCat.toLowerCase());
+};
 
 // Country flags helper
 const getCountryFlag = (country) => {
@@ -336,19 +357,50 @@ const getCountryFlag = (country) => {
   if (c.includes('singapore')) return '🇸🇬';
   if (c.includes('spain')) return '🇪🇸';
   if (c.includes('vietnam')) return '🇻🇳';
+  if (c.includes('brazil')) return '🇧🇷';
+  if (c.includes('argentina')) return '🇦🇷';
+  if (c.includes('japan')) return '🇯🇵';
+  if (c.includes('chile')) return '🇨🇱';
+  if (c.includes('netherlands')) return '🇳🇱';
+  if (c.includes('norway')) return '🇳🇴';
+  if (c.includes('new zealand')) return '🇳🇿';
+  if (c.includes('france')) return '🇫🇷';
+  if (c.includes('germany')) return '🇩🇪';
+  if (c.includes('ireland')) return '🇮🇪';
+  if (c.includes('italy')) return '🇮🇹';
+  if (c.includes('uk') || c.includes('united kingdom')) return '🇬🇧';
+  if (c.includes('thailand')) return '🇹🇭';
   return '🌐';
 };
 
 // Category label helper
 const getCategoryLabel = (catId) => {
   switch (catId) {
-    case 'beef': return 'Premium Beef';
-    case 'fries': return 'Crispy Fries';
-    case 'lamb': return 'Prime Lamb';
-    case 'cheese': return 'Artisan Cheese';
-    case 'butter_margarine': return 'Butter & Margarine';
-    case 'others': return 'Pantry & Specialty';
-    default: return 'Specialty Product';
+    case 'Frozen Beef':
+    case 'beef':
+      return 'Frozen Beef';
+    case 'Frozen Lamb':
+    case 'lamb':
+      return 'Frozen Lamb';
+    case 'Imported Poultry':
+    case 'poultry':
+    case 'chicken':
+      return 'Imported Poultry';
+    case 'Frozen Seafood':
+    case 'seafood':
+      return 'Frozen Seafood';
+    case 'Frozen Potato':
+    case 'fries':
+      return 'Frozen Potato';
+    case 'Butter, Cheese & Dairy':
+    case 'cheese':
+    case 'butter_margarine':
+      return 'Butter, Cheese & Dairy';
+    case 'Oils, Sauces & Dry Goods':
+    case 'others':
+      return 'Oils, Sauces & Dry Goods';
+    default:
+      return catId || 'Specialty Product';
   }
 };
 
@@ -392,13 +444,38 @@ const ProductsPage = () => {
     };
   }, []);
 
-  // Compute category counts dynamically
+  // Compute category counts dynamically (including any custom categories added in CMS)
   const categories = useMemo(() => {
-    return BASE_CATEGORIES.map((cat) => {
+    // Collect all unique categories from products that don't match any of the BASE_CATEGORIES
+    const dynamicCategories = [];
+    const knownCategoryIds = new Set(BASE_CATEGORIES.map((c) => c.id.toLowerCase()));
+
+    products.forEach((p) => {
+      if (p.category) {
+        const catTrimmed = p.category.trim();
+        const matchesBase = BASE_CATEGORIES.some(
+          (base) => base.id !== 'all' && matchesCategoryHelper(catTrimmed, base.id)
+        );
+        if (!matchesBase) {
+          const lower = catTrimmed.toLowerCase();
+          if (!knownCategoryIds.has(lower)) {
+            knownCategoryIds.add(lower);
+            dynamicCategories.push({
+              id: catTrimmed,
+              name: catTrimmed
+            });
+          }
+        }
+      }
+    });
+
+    const fullCategoryList = [...BASE_CATEGORIES, ...dynamicCategories];
+
+    return fullCategoryList.map((cat) => {
       const count =
         cat.id === 'all'
           ? products.length
-          : products.filter((p) => p.category === cat.id).length;
+          : products.filter((p) => matchesCategoryHelper(p.category, cat.id)).length;
       return { ...cat, count };
     });
   }, [products]);
@@ -419,7 +496,7 @@ const ProductsPage = () => {
   const filteredProducts = useMemo(() => {
     let list = products.filter((product) => {
       const matchesCategory =
-        selectedCategory === 'all' || product.category === selectedCategory;
+        selectedCategory === 'all' || matchesCategoryHelper(product.category, selectedCategory);
 
       const matchesSearch =
         !searchTerm ||
@@ -429,7 +506,9 @@ const ProductsPage = () => {
         (product.country &&
           product.country.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (product.badge &&
-          product.badge.toLowerCase().includes(searchTerm.toLowerCase()));
+          product.badge.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (Array.isArray(product.features) &&
+          product.features.some((f) => f.toLowerCase().includes(searchTerm.toLowerCase())));
 
       const productCountryNormalized = (product.country || '').trim().toLowerCase();
       const selectedCountryNormalized = selectedCountry.trim().toLowerCase();
@@ -703,18 +782,28 @@ const ProductsPage = () => {
                   >
                     {/* Visual Stage (Image Area) */}
                     <div className="relative w-full aspect-[4/3] bg-gradient-to-b from-slate-50 to-gray-100/80 overflow-hidden flex items-center justify-center">
-                      <img
-                        src={product.image || '/Images/hungritos-crinkle.jpg'}
-                        alt={product.name}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                        onError={(e) => {
-                          if (!e.currentTarget.src.includes('hungritos-crinkle.jpg')) {
-                            e.currentTarget.src = '/Images/hungritos-crinkle.jpg';
-                          }
-                        }}
-                      />
+                      {product.image ? (
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling;
+                            if (fallback) fallback.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+
+                      {/* Generic No product image fallback state */}
+                      <div className={`w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gray-50/90 text-gray-400 select-none ${product.image ? 'hidden' : ''}`}>
+                        <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-gray-200/80 flex items-center justify-center mb-2 text-gray-300 group-hover:text-emerald-500 transition-colors">
+                          <ImageIcon className="w-6 h-6 stroke-[1.5]" />
+                        </div>
+                        <span className="text-xs font-semibold text-gray-400">No product image</span>
+                      </div>
 
                       {/* Origin Badge (Top-Left) */}
                       {product.country && (
@@ -775,7 +864,7 @@ const ProductsPage = () => {
 
                       {/* Feature Pills */}
                       <div className="flex flex-wrap gap-1.5 mt-auto mb-5">
-                        {(product.features || []).slice(0, 2).map((feature, fIndex) => (
+                        {(product.features || []).slice(0, 3).map((feature, fIndex) => (
                           <span
                             key={fIndex}
                             className="inline-flex items-center text-xs px-2.5 py-1 rounded-lg font-medium bg-gray-50 text-gray-700 border border-gray-200/70"
@@ -783,12 +872,6 @@ const ProductsPage = () => {
                             {feature}
                           </span>
                         ))}
-                        {product.suppliers && (
-                          <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                            <Shield className="w-3 h-3" />
-                            {product.suppliers} Supply Lines
-                          </span>
-                        )}
                       </div>
 
                       {/* Card Actions Footer */}
@@ -865,16 +948,28 @@ const ProductsPage = () => {
               
               {/* Product Photo */}
               <div className="relative bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center p-4 sm:p-6 min-h-[280px] md:min-h-[380px]">
-                <img
-                  src={quickViewProduct.image || '/Images/hungritos-crinkle.jpg'}
-                  alt={quickViewProduct.name}
-                  className="w-full h-full max-h-[360px] object-contain rounded-2xl drop-shadow-md"
-                  onError={(e) => {
-                    if (!e.currentTarget.src.includes('hungritos-crinkle.jpg')) {
-                      e.currentTarget.src = '/Images/hungritos-crinkle.jpg';
-                    }
-                  }}
-                />
+                {quickViewProduct.image ? (
+                  <img
+                    src={quickViewProduct.image}
+                    alt={quickViewProduct.name}
+                    className="w-full h-full max-h-[360px] object-contain rounded-2xl drop-shadow-md"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fb = e.currentTarget.nextElementSibling;
+                      if (fb) fb.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+
+                {/* Generic No product image fallback state */}
+                <div className={`w-full h-full flex flex-col items-center justify-center p-8 text-center bg-gray-50/80 rounded-2xl border border-dashed border-gray-200 text-gray-400 select-none ${quickViewProduct.image ? 'hidden' : ''}`}>
+                  <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-gray-200/80 flex items-center justify-center mb-2.5 text-gray-300">
+                    <ImageIcon className="w-7 h-7 stroke-[1.5]" />
+                  </div>
+                  <span className="text-sm font-bold text-gray-600">No product image</span>
+                  <span className="text-xs text-gray-400 mt-1 max-w-[200px]">Official imagery can be uploaded via the CMS.</span>
+                </div>
+
                 {quickViewProduct.country && (
                   <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-md text-gray-800 shadow-sm border border-white/60">
                     <span>{getCountryFlag(quickViewProduct.country)}</span>
@@ -910,6 +1005,14 @@ const ProductsPage = () => {
 
                 {/* Specs Box */}
                 <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200/70 mb-6 space-y-2 text-xs">
+                  {Array.isArray(quickViewProduct.features) && quickViewProduct.features.find((f) => f.startsWith('FE-')) && (
+                    <div className="flex justify-between py-1 border-b border-gray-200/60">
+                      <span className="text-gray-500 font-medium">Product Code / SKU</span>
+                      <span className="font-mono text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        {quickViewProduct.features.find((f) => f.startsWith('FE-'))}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between py-1 border-b border-gray-200/60">
                     <span className="text-gray-500 font-medium">Origin Country</span>
                     <span className="text-gray-900 font-semibold flex items-center gap-1">
@@ -918,14 +1021,22 @@ const ProductsPage = () => {
                   </div>
                   <div className="flex justify-between py-1 border-b border-gray-200/60">
                     <span className="text-gray-500 font-medium">Product Category</span>
-                    <span className="text-gray-900 font-semibold capitalize">
-                      {quickViewProduct.category ? quickViewProduct.category.replace('_', ' & ') : 'Specialty'}
+                    <span className="text-gray-900 font-semibold">
+                      {getCategoryLabel(quickViewProduct.category)}
                     </span>
                   </div>
                   {quickViewProduct.badge && (
                     <div className="flex justify-between py-1 border-b border-gray-200/60">
                       <span className="text-gray-500 font-medium">Grade / Brand</span>
                       <span className="text-gray-900 font-semibold">{quickViewProduct.badge}</span>
+                    </div>
+                  )}
+                  {Array.isArray(quickViewProduct.features) && quickViewProduct.features.find((f) => f.startsWith('Delivery: ')) && (
+                    <div className="flex justify-between py-1 border-b border-gray-200/60">
+                      <span className="text-gray-500 font-medium">Delivery Speed</span>
+                      <span className="text-emerald-700 font-semibold">
+                        {quickViewProduct.features.find((f) => f.startsWith('Delivery: ')).replace('Delivery: ', '')}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between py-1">
