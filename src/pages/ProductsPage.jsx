@@ -14,8 +14,16 @@ import {
   Info,
   RotateCcw,
   Check,
-  ImageIcon
+  ImageIcon,
+  MessageCircle,
+  Mail,
+  Send,
+  ExternalLink,
+  CheckSquare,
+  Square
 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { BsChatDotsFill } from 'react-icons/bs';
 import { getPublicProducts } from '../admin/services/productService';
 
 // Fallback catalog in case Supabase is not yet populated or offline
@@ -404,6 +412,10 @@ const getCategoryLabel = (catId) => {
   }
 };
 
+const ZALO_CONTACT_URL = "https://zalo.me/84902917902";
+const WHATSAPP_CONTACT_NUMBER = "84799508999";
+const SALES_EMAIL = "info@food-empire.net";
+
 const ProductsPage = () => {
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
   const [loading, setLoading] = useState(true);
@@ -412,6 +424,51 @@ const ProductsPage = () => {
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [sortBy, setSortBy] = useState('default');
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+
+  // Multi-select helpers
+  const toggleSelectProduct = (productId) => {
+    setSelectedProductIds((prev) =>
+      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
+    );
+  };
+
+  const selectAllFiltered = () => {
+    const allFilteredIds = filteredProducts.map((p) => p.id || p.name);
+    setSelectedProductIds(allFilteredIds);
+  };
+
+  const clearSelection = () => {
+    setSelectedProductIds([]);
+  };
+
+  const selectedProductsList = useMemo(() => {
+    return products.filter((p) => selectedProductIds.includes(p.id || p.name));
+  }, [products, selectedProductIds]);
+
+  // Construct message for multiple products
+  const getSelectedProductsSummary = () => {
+    if (selectedProductsList.length === 0) return "";
+    const listText = selectedProductsList
+      .map((p, i) => `${i + 1}. ${p.name} (${p.country || 'Imported'} - ${getCategoryLabel(p.category)})`)
+      .join("\n");
+    return `Hello Food Empire, I would like to request a wholesale quote for the following ${selectedProductsList.length} product(s):\n\n${listText}\n\nPlease share availability, minimum order quantity, and pricing.`;
+  };
+
+  const handleReachOutWhatsApp = () => {
+    const text = encodeURIComponent(getSelectedProductsSummary());
+    window.open(`https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=${text}`, "_blank", "noopener,noreferrer");
+  };
+
+  const handleReachOutZalo = () => {
+    window.open(ZALO_CONTACT_URL, "_blank", "noopener,noreferrer");
+  };
+
+  const handleReachOutEmail = () => {
+    const subject = encodeURIComponent(`Wholesale Quote Request (${selectedProductsList.length} Products) - Food Empire`);
+    const body = encodeURIComponent(getSelectedProductsSummary());
+    window.open(`mailto:${SALES_EMAIL}?subject=${subject}&body=${body}`, "_self");
+  };
 
   // Load database products on mount
   useEffect(() => {
@@ -751,6 +808,47 @@ const ProductsPage = () => {
       <section className="py-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
 
+          {/* Multi-Select Quick Control Bar (Visible when browsing products) */}
+          {filteredProducts.length > 0 && (
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-gray-200/80 shadow-xs">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedProductIds.length === filteredProducts.length) {
+                      clearSelection();
+                    } else {
+                      selectAllFiltered();
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 hover:border-emerald-500 text-xs font-semibold text-gray-700 hover:text-emerald-700 bg-gray-50/80 transition-colors"
+                >
+                  {selectedProductIds.length === filteredProducts.length && filteredProducts.length > 0 ? (
+                    <>
+                      <CheckSquare className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Deselect All</span>
+                    </>
+                  ) : (
+                    <>
+                      <Square className="w-3.5 h-3.5 text-gray-400" />
+                      <span>Select All in View</span>
+                    </>
+                  )}
+                </button>
+
+                {selectedProductIds.length > 0 && (
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/60">
+                    {selectedProductIds.length} product{selectedProductIds.length > 1 ? 's' : ''} selected
+                  </span>
+                )}
+              </div>
+
+              <span className="text-xs text-gray-400 hidden sm:inline">
+                Select multiple products to inquire via WhatsApp, Zalo, or Email in one click
+              </span>
+            </div>
+          )}
+
           {/* Skeleton Loader */}
           {loading && products.length === 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -774,13 +872,19 @@ const ProductsPage = () => {
               {filteredProducts.map((product, index) => {
                 const flag = getCountryFlag(product.country);
                 const categoryName = getCategoryLabel(product.category);
+                const productId = product.id || product.name;
+                const isSelected = selectedProductIds.includes(productId);
 
                 return (
                   <div
                     key={product.id || `${product.name}-${index}`}
-                    className="group bg-white rounded-3xl border border-gray-200/80 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_-4px_rgba(16,185,129,0.12)] hover:border-emerald-600/40 transition-all duration-300 flex flex-col h-full overflow-hidden"
+                    className={`group bg-white rounded-3xl border transition-all duration-300 flex flex-col h-full overflow-hidden ${
+                      isSelected
+                        ? 'border-emerald-600 ring-2 ring-emerald-500/20 shadow-lg'
+                        : 'border-gray-200/80 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_-4px_rgba(16,185,129,0.12)] hover:border-emerald-600/40'
+                    }`}
                   >
-                    {/* Visual Stage (Image Area) */}
+                    {/* Visual Stage (Image Area - NO quick view on hover) */}
                     <div className="relative w-full aspect-[4/3] bg-gradient-to-b from-slate-50 to-gray-100/80 overflow-hidden flex items-center justify-center">
                       {product.image ? (
                         <img
@@ -813,24 +917,39 @@ const ProductsPage = () => {
                         </div>
                       )}
 
-                      {/* Brand / Quality Badge (Top-Right) */}
+                      {/* Multi-Select Checkbox Badge (Top-Right) */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSelectProduct(productId);
+                        }}
+                        className={`absolute top-4 right-4 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md transition-all shadow-sm ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white shadow-emerald-700/25 ring-2 ring-white'
+                            : 'bg-white/95 text-gray-700 hover:bg-white hover:text-emerald-700 border border-gray-200/80'
+                        }`}
+                        title={isSelected ? 'Deselect product' : 'Select for quote'}
+                      >
+                        {isSelected ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>Selected</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="w-3 h-3 rounded-sm border border-gray-400 inline-block" />
+                            <span>Select</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* Brand / Quality Badge (Bottom-Left) */}
                       {product.badge && (
-                        <div className="absolute top-4 right-4 inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-900/85 backdrop-blur-md text-white shadow-sm border border-white/20">
+                        <div className="absolute bottom-3 left-4 inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-gray-900/85 backdrop-blur-md text-white shadow-sm border border-white/20">
                           {product.badge}
                         </div>
                       )}
-
-                      {/* Quick View Button on Image Hover */}
-                      <div className="absolute inset-0 bg-gray-900/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
-                        <button
-                          type="button"
-                          onClick={() => setQuickViewProduct(product)}
-                          className="bg-white/95 hover:bg-white text-gray-900 text-xs font-bold py-2.5 px-4.5 rounded-full shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-all duration-200 hover:scale-105"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Quick View</span>
-                        </button>
-                      </div>
                     </div>
 
                     {/* Card Content */}
@@ -886,14 +1005,16 @@ const ProductsPage = () => {
                           <span>Specs</span>
                         </button>
 
-                        <Link
-                          to="/contact"
-                          state={{ product: product.name, category: product.category }}
+                        <a
+                          href={ZALO_CONTACT_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="flex-1 bg-gray-900 hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group/btn shadow-sm hover:shadow-md hover:shadow-emerald-900/20"
                         >
+                          <BsChatDotsFill className="w-3.5 h-3.5 text-sky-400 group-hover/btn:text-white" />
                           <span>Request Quote</span>
-                          <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />
-                        </Link>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                        </a>
                       </div>
 
                     </div>
@@ -1064,17 +1185,19 @@ const ProductsPage = () => {
                   </div>
                 )}
 
-                {/* Modal CTA */}
+                {/* Modal CTA -> Direct Redirect to Zalo */}
                 <div className="mt-auto pt-4 flex flex-col gap-2">
-                  <Link
-                    to="/contact"
-                    state={{ product: quickViewProduct.name, category: quickViewProduct.category }}
+                  <a
+                    href={ZALO_CONTACT_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => setQuickViewProduct(null)}
-                    className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 px-5 rounded-xl text-center text-sm transition-all duration-200 shadow-md flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white font-bold py-3.5 px-5 rounded-xl text-center text-sm transition-all duration-200 shadow-md flex items-center justify-center gap-2.5"
                   >
-                    <span>Request Quote for this Cut</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                    <BsChatDotsFill className="w-4 h-4" />
+                    <span>Request Quote on Zalo</span>
+                    <ExternalLink className="w-4 h-4 opacity-80" />
+                  </a>
 
                   <button
                     type="button"
@@ -1090,6 +1213,81 @@ const ProductsPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Floating Action Dock for Multi-Selected Products (WhatsApp, Zalo, Email) */}
+      {selectedProductIds.length > 0 && (
+        <aside
+          aria-label="Multi-Product Inquiries"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-2xl bg-gray-900/95 backdrop-blur-xl text-white rounded-3xl p-4 sm:p-5 shadow-2xl border border-white/20 animate-fade-in"
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            {/* Selection info */}
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-full bg-emerald-500 text-gray-900 font-extrabold text-xs flex items-center justify-center">
+                  {selectedProductIds.length}
+                </span>
+                <div>
+                  <h4 className="text-sm font-bold text-white leading-tight">
+                    {selectedProductIds.length} {selectedProductIds.length === 1 ? 'Product' : 'Products'} Selected
+                  </h4>
+                  <p className="text-[11px] text-gray-300">
+                    Inquire directly with your selection:
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={clearSelection}
+                className="text-xs text-gray-400 hover:text-white underline sm:ml-2"
+              >
+                Clear
+              </button>
+            </div>
+
+            {/* 3 Contact Options: WhatsApp, Zalo, Email */}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-stretch sm:justify-end">
+              
+              {/* 1. WhatsApp */}
+              <button
+                type="button"
+                onClick={handleReachOutWhatsApp}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-xs font-bold transition-all shadow-md hover:scale-105"
+                title="Send selection list to WhatsApp"
+              >
+                <FaWhatsapp className="w-4 h-4" />
+                <span>WhatsApp</span>
+              </button>
+
+              {/* 2. Zalo */}
+              <button
+                type="button"
+                onClick={handleReachOutZalo}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition-all shadow-md hover:scale-105"
+                title="Connect on Zalo"
+              >
+                <BsChatDotsFill className="w-3.5 h-3.5" />
+                <span>Zalo</span>
+              </button>
+
+              {/* 3. Email */}
+              <button
+                type="button"
+                onClick={handleReachOutEmail}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all border border-white/20 hover:scale-105"
+                title="Draft Quote Request Email"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Email</span>
+              </button>
+
+            </div>
+
+          </div>
+        </aside>
       )}
 
       {/* 6. Official Catalog Disclaimer */}
