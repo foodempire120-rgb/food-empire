@@ -164,15 +164,15 @@ export const CATALOGUE_PRODUCTS = [
   // ============================================================
   // CATEGORY 5 — FROZEN POTATO (16 PRODUCTS)
   // ============================================================
-  { code: 'FE-AU-0114', name: 'Straight Cut Fries 10x10', brand: 'Baris Gourmet', origin: 'Australia', delivery: 'Within 24h', category: 'Frozen Potato' },
+  { code: 'FE-BE-0114', name: 'Straight Cut Fries 10x10', brand: 'Bart’s Gourmet', origin: 'Belgium', delivery: 'Within 24h', category: 'Frozen Potato' },
   { code: 'FE-AU-0115', name: 'Shoestring Sure Crisp 6/6 - 2.5kg', brand: 'Mc Cain', origin: 'Australia', delivery: '24–48h', category: 'Frozen Potato' },
   { code: 'FE-AU-0116', name: 'Steak Fries - 2.5kg', brand: 'Mc Cain', origin: 'Australia', delivery: '24–48h', category: 'Frozen Potato' },
   { code: 'FE-AU-0118', name: 'Hash Brown (Triangles) - 800g', brand: 'Mc Cain', origin: 'Australia', delivery: '24–48h', category: 'Frozen Potato' },
   { code: 'FE-AU-0119', name: 'Country Wedges - 2.5kg', brand: 'Mc Cain', origin: 'Australia', delivery: '24–48h', category: 'Frozen Potato' },
-  { code: 'FE-AU-0121', name: 'Straight Cut Fries 10x10 - 2.5kg', brand: 'Baris Gourmet', origin: 'Australia', delivery: 'Within 24h', category: 'Frozen Potato' },
+  { code: 'FE-BE-0121', name: 'Straight Cut Fries 10x10 - 2.5kg', brand: 'Bart’s Gourmet', origin: 'Belgium', delivery: 'Within 24h', category: 'Frozen Potato' },
   { code: 'FE-AU-0123', name: 'Golden Long Fries SC 6/6 - 750g', brand: 'Mc Cain', origin: 'Australia', delivery: '24–48h', category: 'Frozen Potato' },
   { code: 'FE-AU-0124', name: 'Straight Cut Fries 9/9 - 2.5kg', brand: 'Mc Cain', origin: 'Australia', delivery: '24–48h', category: 'Frozen Potato' },
-  { code: 'FE-AU-0125', name: 'Country Wedges - 1kg (Baris Gourmet)', brand: 'Baris Gourmet', origin: 'Australia', delivery: 'Within 24h', category: 'Frozen Potato' },
+  { code: 'FE-BE-0125', name: 'Country Wedges - 1kg (Bart’s Gourmet)', brand: 'Bart’s Gourmet', origin: 'Belgium', delivery: 'Within 24h', category: 'Frozen Potato' },
   { code: 'FE-CH-0031', name: 'Frozen Shoestring Acrispy 7*7', brand: 'Acrispy', origin: 'China', delivery: 'Same-day', category: 'Frozen Potato' },
   { code: 'FE-CH-0032', name: 'Frozen Shoestring Acrispy 10*10', brand: 'Acrispy', origin: 'China', delivery: 'Same-day', category: 'Frozen Potato' },
   { code: 'FE-IN-0002', name: 'Crinkle Cut Hungritos', brand: 'Hungritos', origin: 'India', delivery: 'Same-day', category: 'Frozen Potato' },
@@ -228,7 +228,7 @@ export const CATALOGUE_PRODUCTS = [
   { code: 'FE-IT-0179', name: 'Pitted Black Olives 397g', brand: 'Mazza', origin: 'Italy', delivery: '24–48h', category: 'Oils, Sauces & Dry Goods' },
   { code: 'FE-IT-0180', name: 'Red Kidney Beans 400g', brand: 'Contel', origin: 'Italy', delivery: '24–48h', category: 'Oils, Sauces & Dry Goods' },
   { code: 'FE-NL-0184', name: 'Heinz Classic BBQ Sauce 480G', brand: 'Heinz', origin: 'Netherlands', delivery: 'Within 24h', category: 'Oils, Sauces & Dry Goods' },
-  { code: 'FE-PL-0037', name: 'Olive Pomace Oil 5L', brand: 'Urzante', origin: 'Poland', delivery: 'Same-day', category: 'Oils, Sauces & Dry Goods' },
+  { code: 'FE-ESP-0037', name: 'Olive Pomace Oil 5L', brand: 'Urzante', origin: 'Spain', delivery: 'Same-day', category: 'Oils, Sauces & Dry Goods' },
   { code: 'FE-TH-0182', name: 'Heinz Chilli Sauce 300G', brand: 'Heinz', origin: 'Thailand', delivery: 'Within 24h', category: 'Oils, Sauces & Dry Goods' },
   { code: 'FE-TH-0183', name: 'Heinz Tomato Ketchup 300G', brand: 'Heinz', origin: 'Thailand', delivery: 'Within 24h', category: 'Oils, Sauces & Dry Goods' },
   { code: 'FE-UK-0135', name: 'Heinz Mayonnaise 2Kg', brand: 'Heinz', origin: 'UK', delivery: 'Within 24h', category: 'Oils, Sauces & Dry Goods' },
@@ -268,7 +268,7 @@ const KNOWN_EXISTING_MAPPINGS = {
   'FE-PL-0035': 'cdbe1550-9c4a-4940-bb87-911df2697e52', // Pizza Topping Mozzarella
   'FE-AU-0036': '7bf313ce-f6a2-4a58-8908-768d509a7d6b', // Peerless AU Unsalted Butter
   'FE-SG-0040': 'dd758263-e55a-4703-afce-1fcac1768a99', // Margarine Palffy Unsalted Vivo
-  'FE-PL-0037': '6b11af64-10d3-427b-8849-bcf04f696d2c', // Urzante Olive Pomace Oil
+  'FE-ESP-0037': '6b11af64-10d3-427b-8849-bcf04f696d2c', // Urzante Olive Pomace Oil
   'FE-ESP-0041': 'edfa1b32-8a72-4265-bc7b-420828a2f320', // Fragata Seedless Black Olives
   'FE-VN-0013': '2ca86dbd-94b9-4d97-baa6-784c9771e2c7'  // Ajinomoto Mayonnaise 3kg
 };
