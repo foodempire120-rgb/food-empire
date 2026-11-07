@@ -203,6 +203,12 @@ const closeModal = () => {
   });
 // Chatbase bot loader
   useEffect(() => {
+    window.chatbaseConfig = {
+      chatbotId: "-96YCJOIt5KH-ZTaX0tyA",
+      showFloatingInitialMessages: false,
+      autoOpen: false,
+    };
+
     if (document.getElementById("-96YCJOIt5KH-ZTaX0tyA")) return;
 
     const script = document.createElement("script");

@@ -126,6 +126,12 @@ const HomePage = () => {
   };
 // Chatbase Bot Integration
 useEffect(() => {
+  window.chatbaseConfig = {
+    chatbotId: "-96YCJOIt5KH-ZTaX0tyA",
+    showFloatingInitialMessages: false,
+    autoOpen: false,
+  };
+
   // Prevent re-initialization
   if (document.getElementById("-96YCJOIt5KH-ZTaX0tyA")) return;
 
