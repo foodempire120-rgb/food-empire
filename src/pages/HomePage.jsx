@@ -127,23 +127,17 @@ const HomePage = () => {
 // Chatbase Bot Integration
 useEffect(() => {
   // Prevent re-initialization
-  if (document.getElementById("BCtbFD6-ddUfpo4BMU8U7")) return;
+  if (document.getElementById("-96YCJOIt5KH-ZTaX0tyA")) return;
 
-  // Initialize Chatbase global config
-  window.chatbaseConfig = {
-    chatbotId: "BCtbFD6-ddUfpo4BMU8U7", // ✅ Your bot ID here
-  };
-
-  // Create script element
   const script = document.createElement("script");
   script.src = "https://www.chatbase.co/embed.min.js";
-  script.id = "BCtbFD6-ddUfpo4BMU8U7";
+  script.id = "-96YCJOIt5KH-ZTaX0tyA";
   script.defer = true;
   document.body.appendChild(script);
 
   return () => {
     // Optional cleanup if component unmounts
-    document.getElementById("BCtbFD6-ddUfpo4BMU8U7")?.remove();
+    document.getElementById("-96YCJOIt5KH-ZTaX0tyA")?.remove();
   };
 }, []);
 
